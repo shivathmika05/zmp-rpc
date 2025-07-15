@@ -1,10 +1,11 @@
+import express from "express"; // ✅ 1. Import express
 import { RetoolRPC } from "retoolrpc";
 import axios from "axios";
 
 const rpc = new RetoolRPC({
-  apiToken: 'retool_01jzhnfh7hje53pfr01saqkyb1', 
+  apiToken: 'retool_01jzhnfh7hje53pfr01saqkyb1',
   host: 'https://zetaglobalcustomerengineeringintern.retool.com',
-  resourceId: '321be69d-9836-459c-906c-288d1302468f', 
+  resourceId: '321be69d-9836-459c-906c-288d1302468f',
   environmentName: 'production',
   pollingIntervalMs: 1000,
   version: '0.0.1',
@@ -30,7 +31,7 @@ rpc.register({
 
     const url = `https://phoenix.api.zetaglobal.net/v1/site_configs?account_id=${accountId}`;
 
-    const fixedAuth = Buffer.from(`api:5bc21b0483dc2722f99f3abdf3aa8bdd `).toString("base64");
+    const fixedAuth = Buffer.from(`api:5bc21b0483dc2722f99f3abdf3aa8bdd`).toString("base64");
     const dynamicAuth = Buffer.from(`api:${apiKey}`).toString("base64");
 
     try {
@@ -53,15 +54,9 @@ rpc.register({
         success: true,
         accountId,
         combined: [
-          {
-            source: "getSegments",
-            data: res1.data,
-          },
-          {
-            source: "getSegmentsWithApiKey",
-            data: res2.data,
-          },
-        ],        
+          { source: "getSegments", data: res1.data },
+          { source: "getSegmentsWithApiKey", data: res2.data },
+        ],
         raw1: res1.data,
         raw2: res2.data,
       };
@@ -78,4 +73,15 @@ rpc.register({
   },
 });
 
+// ✅ 2. Start the RPC listener
 rpc.listen();
+
+// ✅ 3. Add an HTTP server so Render doesn't kill your app
+const app = express();
+const PORT = process.env.PORT || 5050;
+
+app.get("/", (_, res) => res.send("ZMP RPC server running!"));
+
+app.listen(PORT, () => {
+  console.log(`Express server listening on port ${PORT}`);
+});
